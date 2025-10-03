@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="shortcut icon" href="images/escena7.png" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardians of Balance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'colormia-primary': '#FF4D8B', 
+              'gray-hell-dark': '#1F2937', 
+              'balance-blue': '#4F46E5', 
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        /* Estilos base para los personajes */
+        .guardian {
+            position: absolute;
+            bottom: 4px; /* Posición inicial */
+            transition: left 0.1s linear; /* Animación de movimiento fluida */
+            z-index: 10;
+        }
+        #plastix {
+            text-shadow: 0 0 10px rgba(255, 77, 139, 0.8);
+        }
+        #him {
+            text-shadow: 0 0 10px rgba(107, 114, 128, 0.8);
+        }
+        /* Estilo para los proyectiles */
+        .projectile {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            transition: all 0.05s linear;
+            z-index: 5;
+        }
+        /* Estilo para el enemigo */
+        .enemy {
+            position: absolute;
+            transition: transform 0.1s;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans">
+
+    <!-- Agregado: enlace para volver a la página principal -->
+    <div class="max-w-6xl mx-auto px-6 py-4">
+        <a href="index.html" class="inline-block bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded shadow transition duration-200">
+            ← Back to Story
+        </a>
+    </div>
+
+    <section id="juego" class="bg-gray-800 p-8 rounded-xl shadow-2xl border-t-8 border-purple-500 max-w-6xl mx-auto my-8">
+        <h2 class="text-4xl font-bold text-purple-400 mb-4 text-center">7. Guardians of Balance - ¡ACTIVATED!</h2>
+        <p class="text-center text-lg mb-6 italic text-gray-300">Move and shoot to protect the balance of the worlds</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-gradient-to-br from-colormia-primary to-pink-600 p-4 rounded-lg text-center shadow-xl">
+                <p class="text-sm font-bold">COLORMIA HEALTH</p>
+                <div class="flex items-center justify-center mt-2">
+                    <div class="w-full bg-gray-900/50 rounded-full h-4">
+                        <div id="colorHealth" class="bg-white h-4 rounded-full transition-all duration-300" style="width: 100%"></div>
+                    </div>
+                </div>
+                <p id="colorHealthText" class="text-2xl font-bold mt-1">100</p>
+            </div>
+            
+            <div class="bg-gradient-to-br from-gray-600 to-gray-800 p-4 rounded-lg text-center shadow-xl">
+                <p class="text-sm font-bold">GRAY HELL HEALTH</p>
+                <div class="flex items-center justify-center mt-2">
+                    <div class="w-full bg-gray-900/50 rounded-full h-4">
+                        <div id="shadowHealth" class="bg-white h-4 rounded-full transition-all duration-300" style="width: 100%"></div>
+                    </div>
+                </div>
+                <p id="shadowHealthText" class="text-2xl font-bold mt-1">100</p>
+            </div>
+            
+            <div class="bg-balance-blue p-4 rounded-lg text-center shadow-xl">
+                <p class="text-sm font-bold">BALANCE</p>
+                <p id="balanceScore" class="text-3xl font-bold mt-2">100%</p>
+                <p class="text-xs mt-1">Waves: <span id="wave">1</span></p>
+            </div>
+            
+            <div class="bg-yellow-500 p-4 rounded-lg text-center shadow-xl">
+                <p class="text-sm font-bold text-gray-900">SCORE</p>
+                <p id="score" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                <p class="text-xs text-gray-900 mt-1">HighScore: <span id="highScore">0</span></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="relative">
+                <h3 class="text-center text-xl font-bold text-colormia-primary mb-2">🌈 COLORMIA</h3>
+                <div id="colorWorld" class="relative h-96 bg-gradient-to-b from-pink-500/20 to-purple-500/20 rounded-lg border-4 border-colormia-primary overflow-hidden">
+                    <div class="absolute top-2 left-2 bg-black/60 p-2 rounded text-xs">
+                        <p>Energy: <span id="colorEnergy" class="text-colormia-primary font-bold">100</span></p>
+                    </div>
+                    <div id="plastix" class="guardian text-4xl" style="left: 50%; transform: translateX(-50%);">
+                        🌈
+                    </div>
+                </div>
+                <p class="text-xs text-center mt-1 text-gray-400">*Controls:* *A/D* (Move), *W* (Shoot: -5E)</p>
+            </div>
+
+            <div class="relative">
+                <h3 class="text-center text-xl font-bold text-gray-400 mb-2">🌑 GRAY HELL</h3>
+                <div id="shadowWorld" class="relative h-96 bg-gradient-to-b from-gray-700 to-gray-900 rounded-lg border-4 border-gray-500 overflow-hidden">
+                    <div class="absolute top-2 left-2 bg-black/60 p-2 rounded text-xs">
+                        <p>Energy: <span id="shadowEnergy" class="text-gray-400 font-bold">100</span></p>
+                    </div>
+                    <div id="him" class="guardian text-4xl" style="left: 50%; transform: translateX(-50%);">
+                        👻
+                    </div>
+                </div>
+                <p class="text-xs text-center mt-1 text-gray-400">*Controls:* *←/→* (Move), *↑* (Shoot: -5E)</p>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 p-4 rounded-lg mb-6 h-24 overflow-y-auto border-2 border-gray-700">
+            <div id="eventLog" class="text-sm space-y-1">
+                <p class="text-balance-blue italic">⚡ Get ready to defend both worlds!</p>
+            </div>
+        </div>
+
+        <div id="gameControls" class="text-center">
+            <div class="bg-gray-700 p-6 rounded-lg space-y-4">
+                <h3 class="text-2xl font-bold text-yellow-400">📜 How to Play</h3>
+                <div class="grid md:grid-cols-2 gap-4 text-left">
+                    <div class="bg-gray-800 p-3 rounded">
+                        <p class="font-bold text-colormia-primary mb-2">🎮 Colormia Controls:</p>
+                        <p class="text-sm">*A/D* (Move to Plastix) & *W* (Shoot lightning: -5E)</p>
+                    </div>
+                    <div class="bg-gray-800 p-3 rounded">
+                        <p class="font-bold text-gray-400 mb-2">🎮 Gray Hell Controls:</p>
+                        <p class="text-sm">*←/→* (Mover to H.I.M.) y *↑* (Shoot shadow: -5E)</p>
+                    </div>
+                </div>
+                <button id="startBtn" class="mt-4 bg-balance-blue hover:bg-balance-blue/80 text-white font-bold py-4 px-12 rounded-full text-2xl transition duration-300 transform hover:scale-105 shadow-xl">
+                    ⚡ START MISSION
+                </button>
+            </div>
+        </div>
+
+        <div id="gameOverScreen" class="hidden text-center">
+            <div class="bg-gray-700 p-8 rounded-lg space-y-4">
+                <h3 class="text-4xl font-bold text-red-500">💔 MISSION FAILED</h3>
+                <p id="gameOverReason" class="text-xl italic"></p>
+                <div class="bg-gray-800 p-4 rounded-lg inline-block">
+                    <p class="text-sm text-gray-400">Final Score</p>
+                    <p id="finalScore" class="text-5xl font-bold text-yellow-400">0</p>
+                    <p class="text-sm text-gray-400 mt-2">Waves Completed: <span id="finalWave" class="text-white font-bold">0</span></p>
+                </div>
+                <div id="achievementSection" class="hidden">
+                    <p class="text-lg text-balance-blue">🏆 <span id="achievement"></span></p>
+                </div>
+                <button id="restartBtn" class="mt-4 bg-colormia-primary hover:bg-pink-600 text-white font-bold py-4 px-12 rounded-full text-2xl transition duration-300 transform hover:scale-105 shadow-xl">
+                    🔄 RETRY MISSION
+                </button>
+            </div>
+        </div>
+    </section>
+
+<script>
+    const gameState = {
+        isPlaying: false,
+        wave: 1,
+        score: 0,
+        highScore: parseInt(localStorage.getItem('highScore') || '0'),
+        colorHealth: 100,
+        shadowHealth: 100,
+        colorEnergy: 100,
+        shadowEnergy: 100,
+        colorShieldActive: false,
+        shadowShieldActive: false,
+        enemies: [],
+        projectiles: [],
+        enemySpawnRate: 2000,
+        lastSpawn: 0,
+        enemySpeed: 1,
+        colorPos: 50, 
+        shadowPos: 50,
+        keysPressed: {},
+        lastShotColor: 0,
+        lastShotShadow: 0,
+        shotCooldown: 200 
+    };
+
+    const elements = {
+        colorHealth: document.getElementById('colorHealth'),
+        shadowHealth: document.getElementById('shadowHealth'),
+        colorHealthText: document.getElementById('colorHealthText'),
+        shadowHealthText: document.getElementById('shadowHealthText'),
+        balanceScore: document.getElementById('balanceScore'),
+        score: document.getElementById('score'),
+        highScore: document.getElementById('highScore'),
+        wave: document.getElementById('wave'),
+        colorEnergy: document.getElementById('colorEnergy'),
+        shadowEnergy: document.getElementById('shadowEnergy'),
+        colorWorld: document.getElementById('colorWorld'),
+        shadowWorld: document.getElementById('shadowWorld'),
+        plastix: document.getElementById('plastix'),
+        him: document.getElementById('him'),
+        eventLog: document.getElementById('eventLog'),
+        startBtn: document.getElementById('startBtn'),
+        restartBtn: document.getElementById('restartBtn'),
+        gameControls: document.getElementById('gameControls'),
+        gameOverScreen: document.getElementById('gameOverScreen')
+    };
+
+    elements.highScore.textContent = gameState.highScore;
+
+    // --- CLASE ENEMY ---
+    class Enemy {
+        constructor(type, target) {
+            this.type = type;
+            this.target = target;
+            this.health = type === 'corruption' ? 60 : 40;
+            this.maxHealth = this.health;
+            this.damage = type === 'corruption' ? 15 : 10;
+            this.speed = gameState.enemySpeed;
+
+            // inicializar posición antes de crear el elemento (fix para spawn siempre a la izquierda)
+            this.y = -50;
+            this.x = Math.random() * 90 + 5; 
+            this.damageDealt = false;
+
+            this.element = this.createElement();
+        }
+
+        createElement() {
+            const div = document.createElement('div');
+            div.className = 'enemy absolute cursor-default transition-transform';
+            div.style.left = this.x + '%';
+            div.style.top = this.y + 'px';
+            
+            let emoji, color;
+            if (this.type === 'monochrome') {
+                emoji = '🔴';
+                color = 'bg-red-500';
+            } else if (this.type === 'echo') {
+                emoji = '⚫';
+                color = 'bg-gray-900';
+            } else {
+                emoji = '💥';
+                color = 'bg-purple-600';
+            }
+            
+            div.innerHTML = `
+                <div class="text-3xl mb-1">${emoji}</div>
+                <div class="w-12 bg-gray-700 rounded-full h-1.5">
+                    <div class="enemy-health ${color} h-1.5 rounded-full transition-all duration-100" style="width: 100%"></div>
+                </div>
+            `;
+            
+            // Si target === 'both', colocarlo aleatoriamente en colorWorld o shadowWorld
+            const world = this.target === 'color' ? elements.colorWorld
+                        : this.target === 'shadow' ? elements.shadowWorld
+                        : (Math.random() < 0.5 ? elements.colorWorld : elements.shadowWorld);
+
+            world.appendChild(div);
+            
+            return div;
+        }
+
+        takeDamage(amount) {
+            if (!this.element) return false;
+            this.health -= amount;
+            
+            this.element.style.transform = 'scale(0.8)';
+            setTimeout(() => {
+                if (this.element) this.element.style.transform = 'scale(1)';
+            }, 100);
+            
+            const healthBar = this.element.querySelector('.enemy-health');
+            const healthPercent = (this.health / this.maxHealth) * 100;
+            healthBar.style.width = healthPercent + '%';
+            
+            if (this.health <= 0) {
+                this.destroy(true);
+                gameState.score += this.type === 'corruption' ? 30 : 20;
+                updateDisplay();
+                addLog(`✅ ${this.type === 'corruption' ? 'Corruption' : this.type === 'monochrome' ? 'Monochrome' : 'Echo'} eliminated!`, 'text-green-400');
+                return true;
+            }
+            return false;
+        }
+
+        update() {
+            if (!this.element) return false;
+            
+            this.y += this.speed;
+            this.element.style.top = this.y + 'px';
+            
+            if (this.y > 340 && !this.damageDealt) { 
+                this.attack();
+                this.damageDealt = true;
+                return false;
+            }
+            
+            return true;
+        }
+
+        attack() {
+            if (this.target === 'color') {
+                if (!gameState.colorShieldActive) {
+                    gameState.colorHealth -= this.damage;
+                    addLog(`💥 ¡Colormia takes ${this.damage} damage!`, 'text-red-400');
+                } else {
+                    addLog('🛡 Plastix Shield blocked the attack!', 'text-blue-400');
+                }
+            } else if (this.target === 'shadow') {
+                if (!gameState.shadowShieldActive) {
+                    gameState.shadowHealth -= this.damage;
+                    addLog(`💥 ¡Gray Hell takes ${this.damage} damage!`, 'text-red-400');
+                } else {
+                    addLog('🛡 ¡H.I.M. Shield blocked the attack!', 'text-blue-400');
+                }
+            } else { 
+                let damageToColor = gameState.colorShieldActive ? 0 : this.damage / 2;
+                let damageToShadow = gameState.shadowShieldActive ? 0 : this.damage / 2;
+
+                if (damageToColor > 0) gameState.colorHealth -= damageToColor;
+                if (damageToShadow > 0) gameState.shadowHealth -= damageToShadow;
+                
+                addLog('💥 ¡Corruption attacks both worlds!', 'text-purple-400');
+            }
+            
+            this.destroy(false);
+            updateDisplay();
+        }
+
+        destroy(killed) {
+            if (this.element) {
+                if (killed) {
+                    this.element.style.transition = 'all 0.3s';
+                    this.element.style.opacity = '0';
+                    this.element.style.transform = 'scale(0.1)';
+                }
+                setTimeout(() => {
+                    if (this.element && this.element.parentNode) {
+                        this.element.parentNode.removeChild(this.element);
+                    }
+                }, 300);
+                this.element = null;
+            }
+        }
+    }
+    
+    // --- CLASE PROJECTILE ---
+    class Projectile {
+        constructor(world, startX) {
+            this.world = world;
+            this.damage = 10;
+            this.speed = 10;
+            // posición Y inicial basada en el alto del contenedor para mayor consistencia
+            const container = world === 'color' ? elements.colorWorld : elements.shadowWorld;
+            this.y = container.clientHeight - 40;
+            this.x = startX;
+            this.element = this.createElement();
+        }
+
+        createElement() {
+            const div = document.createElement('div');
+            div.className = 'projectile';
+            div.style.top = this.y + 'px';
+            div.style.left = this.x + '%';
+            
+            if (this.world === 'color') {
+                div.style.backgroundColor = '#FF4D8B';
+                div.style.boxShadow = '0 0 5px #FF4D8B';
+                elements.colorWorld.appendChild(div);
+            } else {
+                div.style.backgroundColor = '#6B7280';
+                div.style.boxShadow = '0 0 5px #6B7280';
+                elements.shadowWorld.appendChild(div);
+            }
+
+            return div;
+        }
+
+        update() {
+            if (!this.element) return false;
+            
+            this.y -= this.speed;
+            this.element.style.top = this.y + 'px';
+            
+            const targetEnemies = this.world === 'color' 
+                ? gameState.enemies.filter(e => e.target === 'color' || e.target === 'both')
+                : gameState.enemies.filter(e => e.target === 'shadow' || e.target === 'both');
+
+            const worldRect = elements[this.world + 'World'].getBoundingClientRect();
+            const projX_px = (this.x / 100) * worldRect.width;
+
+            for (let i = 0; i < targetEnemies.length; i++) {
+                const enemy = targetEnemies[i];
+                if (!enemy.element) continue;
+
+                const enemyRect = enemy.element.getBoundingClientRect();
+                
+                // Convert enemy position a píxeles relativos al contenedor
+                const enemyTop = enemy.y;
+                const enemyBottom = enemy.y + enemyRect.height;
+                const enemyLeft = (enemy.x / 100) * worldRect.width;
+                const enemyRight = enemyLeft + enemyRect.width;
+                
+                // Colisión
+                if (this.y < enemyBottom && this.y > enemyTop && 
+                    projX_px > enemyLeft && projX_px < enemyRight) {
+                    
+                    enemy.takeDamage(this.damage);
+                    this.destroy();
+                    return false; 
+                }
+            }
+
+            if (this.y < -10) {
+                this.destroy();
+                return false;
+            }
+            
+            return true;
+        }
+
+        destroy() {
+            if (this.element) {
+                if (this.element.parentNode) {
+                    this.element.parentNode.removeChild(this.element);
+                }
+                this.element = null;
+            }
+        }
+    }
+    
+    function updateProjectiles() {
+        gameState.projectiles = gameState.projectiles.filter(p => p.update());
+    }
+
+    // --- FUNCIONES DE MOVIMIENTO Y DISPARO ---
+    const moveStep = 2; 
+    const minPos = 5;
+    const maxPos = 95;
+
+    function handleMovement() {
+        if (!gameState.isPlaying) return;
+
+        // Colormia (A/D)
+        if (gameState.keysPressed['a']) {
+            gameState.colorPos = Math.max(minPos, gameState.colorPos - moveStep);
+            elements.plastix.style.left = gameState.colorPos + '%';
+        }
+        if (gameState.keysPressed['d']) {
+            gameState.colorPos = Math.min(maxPos, gameState.colorPos + moveStep);
+            elements.plastix.style.left = gameState.colorPos + '%';
+        }
+
+        // Gray Hell (Flechas)
+        if (gameState.keysPressed['arrowleft']) {
+            gameState.shadowPos = Math.max(minPos, gameState.shadowPos - moveStep);
+            elements.him.style.left = gameState.shadowPos + '%';
+        }
+        if (gameState.keysPressed['arrowright']) {
+            gameState.shadowPos = Math.min(maxPos, gameState.shadowPos + moveStep);
+            elements.him.style.left = gameState.shadowPos + '%';
+        }
+    }
+    
+    function shoot(world) {
+        const now = Date.now();
+        const cost = 5;
+        
+        if (world === 'color') {
+            if (gameState.colorEnergy >= cost && now - gameState.lastShotColor > gameState.shotCooldown) {
+                gameState.colorEnergy -= cost;
+                gameState.projectiles.push(new Projectile('color', gameState.colorPos));
+                gameState.lastShotColor = now;
+                updateDisplay();
+            }
+        } else if (world === 'shadow') {
+            if (gameState.shadowEnergy >= cost && now - gameState.lastShotShadow > gameState.shotCooldown) {
+                gameState.shadowEnergy -= cost;
+                gameState.projectiles.push(new Projectile('shadow', gameState.shadowPos));
+                gameState.lastShotShadow = now;
+                updateDisplay();
+            }
+        }
+    }
+    
+    // --- GESTIÓN DE EVENTOS DE TECLADO ---
+    document.addEventListener('keydown', (e) => {
+        if (!gameState.isPlaying) return;
+        
+        const key = e.key.toLowerCase();
+
+        // Evitar comportamiento por defecto para teclas de control del juego
+        if (['a','d','w','arrowup','arrowleft','arrowright'].includes(key)) {
+            e.preventDefault();
+        }
+
+        gameState.keysPressed[key] = true;
+        
+        if (key === 'w') {
+            shoot('color');
+        }
+        if (key === 'arrowup') {
+            shoot('shadow');
+        }
+    });
+
+    document.addEventListener('keyup', (e) => {
+        const key = e.key.toLowerCase();
+        gameState.keysPressed[key] = false;
+    });
+
+    // --- FUNCIONES DE JUEGO PRINCIPALES ---
+    
+    function spawnEnemy() {
+        const rand = Math.random();
+        let type, target;
+        
+        if (rand < 0.15 && gameState.wave >= 3) {
+            type = 'corruption';
+            target = 'both';
+        } else if (rand < 0.55) {
+            type = 'monochrome';
+            target = 'color';
+        } else {
+            type = 'echo';
+            target = 'shadow';
+        }
+        
+        gameState.enemies.push(new Enemy(type, target));
+    }
+
+    function updateEnemies() {
+        gameState.enemies = gameState.enemies.filter(enemy => enemy.update());
+    }
+
+    function updateDisplay() {
+        // --- Salud ---
+        gameState.colorHealth = Math.min(100, gameState.colorHealth);
+        gameState.shadowHealth = Math.min(100, gameState.shadowHealth);
+
+        elements.colorHealthText.textContent = Math.max(0, Math.floor(gameState.colorHealth));
+        elements.shadowHealthText.textContent = Math.max(0, Math.floor(gameState.shadowHealth));
+
+        elements.colorHealth.style.width = gameState.colorHealth + "%";
+        elements.shadowHealth.style.width = gameState.shadowHealth + "%";
+
+        // --- Energía ---
+        gameState.colorEnergy = Math.min(100, gameState.colorEnergy);
+        gameState.shadowEnergy = Math.min(100, gameState.shadowEnergy);
+
+        elements.colorEnergy.textContent = gameState.colorEnergy;
+        elements.shadowEnergy.textContent = gameState.shadowEnergy;
+
+        // --- Equilibrio ---
+        const balance = Math.floor(
+            ((gameState.colorHealth + gameState.shadowHealth) / 200) * 100
+        );
+        elements.balanceScore.textContent = balance + "%";
+
+        // --- Puntuación ---
+        elements.score.textContent = gameState.score;
+        if (gameState.score > gameState.highScore) {
+            gameState.highScore = gameState.score;
+            localStorage.setItem("highScore", gameState.highScore);
+        }
+        elements.highScore.textContent = gameState.highScore;
+
+        // --- Oleada ---
+        elements.wave.textContent = gameState.wave;
+
+        // Si alguna salud llega a 0, termina la partida
+        if (gameState.isPlaying && (gameState.colorHealth <= 0 || gameState.shadowHealth <= 0)) {
+            // pequeña espera para que se renderice el cambio antes de mostrar game over
+            setTimeout(() => endGame(), 20);
+        }
+    }
+
+    function addLog(message, colorClass = 'text-white') {
+        const p = document.createElement('p');
+        p.className = colorClass;
+        p.textContent = message;
+        elements.eventLog.insertBefore(p, elements.eventLog.firstChild);
+        
+        if (elements.eventLog.children.length > 10) {
+            elements.eventLog.removeChild(elements.eventLog.lastChild);
+        }
+    }
+
+    let gameLoop;
+    let energyRegen;
+    let movementLoop;
+
+    function startGame() {
+        // Reset state
+        gameState.isPlaying = true;
+        gameState.wave = 1;
+        gameState.score = 0;
+        gameState.colorHealth = 100;
+        gameState.shadowHealth = 100;
+        gameState.colorEnergy = 100;
+        gameState.shadowEnergy = 100;
+        gameState.enemies = [];
+        gameState.projectiles = [];
+        gameState.enemySpawnRate = 2000;
+        gameState.lastSpawn = Date.now();
+        gameState.enemySpeed = 1;
+        gameState.colorShieldActive = false;
+        gameState.shadowShieldActive = false;
+        gameState.colorPos = 50;
+        gameState.shadowPos = 50;
+        gameState.keysPressed = {};
+        
+        // UI cleanup
+        elements.plastix.style.left = '50%';
+        elements.him.style.left = '50%';
+        elements.colorWorld.style.boxShadow = 'none';
+        elements.shadowWorld.style.boxShadow = 'none';
+        elements.plastix.textContent = '🌈';
+        elements.him.textContent = '👻';
+        
+        elements.colorWorld.querySelectorAll('.projectile, .enemy').forEach(e => e.remove());
+        elements.shadowWorld.querySelectorAll('.projectile, .enemy').forEach(e => e.remove());
+        
+        elements.gameControls.classList.add('hidden');
+        elements.gameOverScreen.classList.add('hidden');
+        elements.eventLog.innerHTML = '<p class="text-balance-blue italic">⚡ ¡The Battle Begins!</p>';
+        
+        updateDisplay();
+        
+        gameLoop = setInterval(() => {
+            const now = Date.now();
+            
+            if (now - gameState.lastSpawn > gameState.enemySpawnRate) {
+                spawnEnemy();
+                gameState.lastSpawn = now;
+            }
+            
+            updateEnemies();
+            updateProjectiles();
+            
+            if (gameState.enemies.length === 0 && now - gameState.lastSpawn > 3000) {
+                gameState.wave++;
+                gameState.score += 100 * gameState.wave;
+                gameState.enemySpawnRate = Math.max(800, gameState.enemySpawnRate - 50);
+                gameState.enemySpeed = Math.min(4, gameState.enemySpeed + 0.1);
+                addLog(`🌟 ¡Wave ${gameState.wave} started!`, 'text-yellow-400');
+                gameState.lastSpawn = now; 
+                updateDisplay();
+            }
+        }, 50);
+
+        energyRegen = setInterval(() => {
+            gameState.colorEnergy = Math.min(100, gameState.colorEnergy + 5);
+            gameState.shadowEnergy = Math.min(100, gameState.shadowEnergy + 5);
+            updateDisplay();
+        }, 1000);
+        
+        movementLoop = setInterval(handleMovement, 50);
+    }
+
+    function endGame() {
+        gameState.isPlaying = false;
+        clearInterval(gameLoop);
+        clearInterval(energyRegen);
+        clearInterval(movementLoop); 
+        
+        gameState.enemies.forEach(e => e.destroy(true));
+        gameState.projectiles.forEach(p => p.destroy());
+        gameState.enemies = [];
+        gameState.projectiles = [];
+        
+        document.getElementById('finalScore').textContent = gameState.score;
+        document.getElementById('finalWave').textContent = gameState.wave;
+        
+        let reason = '';
+        if (gameState.colorHealth <= 0 && gameState.shadowHealth <= 0) {
+            reason = '💔 Both worlds have fallen...';
+        } else if (gameState.colorHealth <= 0) {
+            reason = '🌈 Colormia has been destroyed by corruption...';
+        } else {
+            reason = '🌑 Gray Hell has been consumed by Echoes...';
+        }
+        document.getElementById('gameOverReason').textContent = reason;
+        
+        document.getElementById('achievementSection').classList.add('hidden');
+        if (gameState.score > gameState.highScore) {
+            gameState.highScore = gameState.score;
+            localStorage.setItem('highScore', gameState.highScore);
+            elements.highScore.textContent = gameState.highScore;
+            document.getElementById('achievementSection').classList.remove('hidden');
+            document.getElementById('achievement').textContent = '¡NEW RECORD on HighScore!';
+        } else if (gameState.wave >= 5) {
+            document.getElementById('achievementSection').classList.remove('hidden');
+            document.getElementById('achievement').textContent = 'Guardian Experienced (Wave 5)';
+        }
+        
+        elements.gameOverScreen.classList.remove('hidden');
+    }
+
+    // Event Listeners
+    elements.startBtn.addEventListener('click', startGame);
+    elements.restartBtn.addEventListener('click', startGame);
+    
+    updateDisplay();
+</script>
+</body>
+</html>
